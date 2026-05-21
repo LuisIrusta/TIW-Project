@@ -27,7 +27,9 @@ CREATE TABLE users (
     first_name      VARCHAR(80)  NOT NULL,
     last_name       VARCHAR(80)  NOT NULL,
     photo           VARCHAR(255) NULL,
-    role            ENUM('administrative','technical') NOT NULL,
+administrative TINYINT NOT NULL DEFAULT '0',
+  technical TINYINT NOT NULL DEFAULT '0',
+  collaborator TINYINT NOT NULL DEFAULT '0',
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
  
@@ -37,7 +39,6 @@ CREATE TABLE users (
     )
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
  
-CREATE INDEX idx_users_role ON users(role);
  
  
 CREATE TABLE projects (
@@ -57,8 +58,6 @@ CREATE TABLE projects (
     CONSTRAINT chk_proj_title    CHECK (CHAR_LENGTH(TRIM(title)) >= 1)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
  
-CREATE INDEX idx_projects_admin       ON projects(administrator_id);
-CREATE INDEX idx_projects_manager     ON projects(manager_id);
 CREATE INDEX idx_projects_state       ON projects(state);
 CREATE INDEX idx_projects_admin_state ON projects(administrator_id, state);
 
@@ -140,9 +139,6 @@ CREATE TABLE worked_hours (
     CONSTRAINT chk_wh_hours CHECK (hours <= 744)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
  
-CREATE INDEX idx_wh_collaborator ON worked_hours(collaborator_id);
-CREATE INDEX idx_wh_task_month   ON worked_hours(task_id, month_index);
-
 -- =============================================================
 -- TRIGGERS
 -- =============================================================
