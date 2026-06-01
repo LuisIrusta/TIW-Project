@@ -28,9 +28,8 @@ public class CreateProject extends AbstractServlet {
 
 		HttpSession session = request.getSession(false);
 		User admin = (User) session.getAttribute("user");
-
 		String title = request.getParameter("title");
-		String durationMonth = request.getParameter("durationMonth");
+		String durationMonth = request.getParameter("durationMonths");
 		String managerId = request.getParameter("managerId");
 
 		// valori grezzi da ripresentare in caso di errore

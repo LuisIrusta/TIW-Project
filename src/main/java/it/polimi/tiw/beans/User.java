@@ -7,7 +7,10 @@ public class User {
 	private String firstName;
 	private String lastName;
 	private String photo;
-	private PersonType personType; //ADMINISTRATIVE or TECHNICAL
+	private PersonType personType; //ADMINISTRATIVE or TECHNICAL or COLLABORATOR
+	private boolean administrative;
+	private boolean technical;
+	private boolean collaborator;
 	
 	public int getId() {
 		return id;
@@ -61,11 +64,13 @@ public class User {
 		return firstName + " " + lastName;
 	}
 	
-	public boolean isAdministrative() {
-		return personType.equals(PersonType.ADMINISTRATIVE);
-	}
-	
-	public boolean isTechnical() {
-		return personType.equals(PersonType.TECHNICAL);
-	}
+
+
+	public boolean isAdministrative() { return administrative; }
+	public boolean isTechnical()      { return technical; }
+	public boolean isCollaborator()   { return collaborator; }
+
+	public void setAdministrative(boolean v) { this.administrative = v; }
+	public void setTechnical(boolean v)      { this.technical = v; }
+	public void setCollaborator(boolean v)   { this.collaborator = v; }
 }

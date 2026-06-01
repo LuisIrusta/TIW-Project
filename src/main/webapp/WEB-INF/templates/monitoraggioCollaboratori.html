@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Monitoraggio Collaboratori</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	<header>
+		<h1>Gestione e rendicontazione progetti</h1>
+		<span class="nav">
+			<a th:href="@{/homeResponsabile}">Home Responsabile</a>
+			<a th:href="@{/monitoraggioProgetti}">Monitoraggio Progetti</a>
+			<a th:href="@{/login}">Logout</a>
+		</span>
+	</header>
+	<main>
+		<h2>Monitoraggio Collaboratori &mdash; <span th:text="${manager.fullName}">Nome Cognome</span></h2>
+
+		<p class="msg-error" th:if="${errorMsg != null}" th:text="${errorMsg}">errore</p>
+
+		<!-- Selezione collaboratore -->
+		<section>
+			<form method="get" th:action="@{/monitoraggioCollaboratori}">
+				<div class="field">
+					<label for="collabId">Collaboratore</label>
+					<select id="collabId" name="collabId">
+						<option value="">-- seleziona un collaboratore --</option>
+						<option th:each="c : ${collaboratori}"
+							th:value="${c.id}"
+							th:text="${c.lastName + ' ' + c.firstName + ' (@' + c.username + ')'}"
+							th:selected="${c.id == collabId}">collaboratore</option>
+					</select>
+				</div>
+				<input type="submit" value="VISUALIZZA">
+			</form>
+		</section>
+
+		<!-- Dati collaboratore selezionato -->
+		<section th:if="${collaboratore != null}">
+			<h3>Collaboratore: <span th:text="${collaboratore.fullName}">Nome</span>
+				&mdash; <span th:text="'@' + ${collaboratore.username}">username</span>
+			</h3>
+
+			<p class="hint" th:if="${#lists.isEmpty(progettiData)}">
+				Nessun dato disponibile per questo collaboratore.
+			</p>
+
+			<div th:each="pe : ${progettiData}">
+				<h4>Progetto: <span th:text="${pe.progetto.title}">titolo</span>
+					&mdash; <span th:text="${pe.progetto.state}">stato</span>
+				</h4>
+
+				<div th:each="wpe : ${pe.wps}">
+					<h5 th:text="${'WP' + wpe.wp.orderNumber + ' — ' + wpe.wp.title}">WP</h5>
+
+					<table border="1">
+						<thead>
+							<tr>
+								<th>Task</th>
+								<th th:each="m : ${#numbers.sequence(1, pe.progetto.durationMonths)}"
+									th:text="${'M' + m}">mese</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="te : ${wpe.tasks}">
+								<td th:text="${'T' + te.task.orderNumber + ' — ' + te.task.title}">task</td>
+								<td th:each="m : ${#numbers.sequence(1, pe.progetto.durationMonths)}">
+									<span th:if="${m >= te.task.startMonth and m <= te.task.endMonth}"
+										th:text="${te.ore[m] != null ? te.ore[m] : 0}">0</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</section>
+
+	</main>
+</body>
+</html>

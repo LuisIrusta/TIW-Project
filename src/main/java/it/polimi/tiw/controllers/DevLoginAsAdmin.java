@@ -24,10 +24,7 @@ public class DevLoginAsAdmin extends AbstractServlet {
             if (admin == null) {
                 throw new ServletException("admin1 does not exist; revise the DB");
             }
-            HttpSession session = req.getSession(true);
-            session.setAttribute("user", admin);
-            session.setAttribute("role", PersonType.ADMINISTRATIVE);
-            res.sendRedirect(req.getContextPath() + "/home-admin");
+
         } catch (SQLException e) {
             throw new ServletException(e);
         }

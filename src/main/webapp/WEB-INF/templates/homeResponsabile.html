@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Home Responsabile</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	<header>
+		<h1>Gestione e rendicontazione progetti</h1>
+		<span class="nav">
+			<a th:href="@{/monitoraggioProgetti}">Monitoraggio Progetti</a>
+			<a th:href="@{/monitoraggioCollaboratori}">Monitoraggio Collaboratori</a>
+			<a th:href="@{/login}">Logout</a>
+		</span>
+	</header>
+	<main>
+		<h2>Home Responsabile &mdash; <span th:text="${manager.fullName}">Nome Cognome</span></h2>
+
+		<p class="msg-error"   th:if="${errorMsg   != null}" th:text="${errorMsg}">errore</p>
+		<p class="msg-success" th:if="${successMsg != null}" th:text="${successMsg}">ok</p>
+
+		<!-- ============ STEP 1: Seleziona Progetto ============ -->
+		<section>
+			<h3>1. Seleziona Progetto</h3>
+			<form method="get" th:action="@{/homeResponsabile}">
+				<div class="field">
+					<label for="projId">Progetto</label>
+					<select id="projId" name="projId">
+						<option value="">-- seleziona un progetto --</option>
+						<option th:each="p : ${progetti}"
+							th:value="${p.id}"
+							th:text="${p.title + ' (' + p.state + ')'}"
+							th:selected="${p.id == projId}">progetto</option>
+					</select>
+				</div>
+				<input type="submit" value="SELEZIONA">
+			</form>
+
+			<!-- Bottone ASSEGNA visibile solo se progetto in stato CREATED -->
+			<form th:if="${progetto != null and progetto.created}"
+				method="post" th:action="@{/assegna-progetto}">
+				<input type="hidden" name="projId" th:value="${projId}">
+				<input type="submit" value="ASSEGNA PROGETTO">
+			</form>
+		</section>
+
+		<!-- ============ STEP 2: Seleziona WP ============ -->
+		<section th:if="${progetto != null}">
+			<h3>2. Seleziona Work Package</h3>
+			<form method="get" th:action="@{/homeResponsabile}">
+				<input type="hidden" name="projId" th:value="${projId}">
+				<div class="field">
+					<label for="wpId">Work Package</label>
+					<select id="wpId" name="wpId">
+						<option value="">-- seleziona un WP --</option>
+						<option th:each="wp : ${wps}"
+							th:value="${wp.id}"
+							th:text="${'WP' + wp.orderNumber + ' — ' + wp.title + ' (mesi ' + wp.startMonth + '–' + wp.endMonth + ')'}"
+							th:selected="${wp.id == wpId}">wp</option>
+					</select>
+				</div>
+				<input type="submit" value="SELEZIONA">
+			</form>
+		</section>
+
+		<!-- ============ STEP 3: Seleziona Task ============ -->
+		<section th:if="${wpSel != null and not #lists.isEmpty(tasks)}">
+			<h3>3. Seleziona Task</h3>
+			<form method="get" th:action="@{/homeResponsabile}">
+				<input type="hidden" name="projId" th:value="${projId}">
+				<input type="hidden" name="wpId"   th:value="${wpId}">
+				<div class="field">
+					<label for="taskId">Task</label>
+					<select id="taskId" name="taskId">
+						<option value="">-- seleziona un task --</option>
+						<option th:each="t : ${tasks}"
+							th:value="${t.id}"
+							th:text="${'T' + t.orderNumber + ' — ' + t.title + ' (mesi ' + t.startMonth + '–' + t.endMonth + ')'}"
+							th:selected="${t.id == taskId}">task</option>
+					</select>
+				</div>
+				<input type="submit" value="SELEZIONA">
+			</form>
+		</section>
+
+		<!-- ============ STEP 4: Ore e Collaboratori ============ -->
+		<section th:if="${task != null}">
+			<h3>4. Ore previste e collaboratori &mdash; <span th:text="${task.title}">task</span></h3>
+
+			<form method="post" th:action="@{/salva-task}">
+				<input type="hidden" name="projId"  th:value="${projId}">
+				<input type="hidden" name="wpId"    th:value="${wpId}">
+				<input type="hidden" name="taskId"  th:value="${taskId}">
+
+				<!-- Ore previste mese per mese -->
+				<h4>Ore previste mese per mese</h4>
+				<div th:each="mese : ${#numbers.sequence(task.startMonth, task.endMonth)}" class="field">
+					<label th:text="'Mese ' + ${mese}">Mese</label>
+					<input type="hidden" name="mesi[]" th:value="${mese}">
+					<input type="number" name="ore[]" min="0" max="744"
+						th:value="${orePreviste[mese] != null ? orePreviste[mese] : 0}" required>
+				</div>
+
+				<!-- Collaboratori assegnati -->
+				<h4>Collaboratori assegnati</h4>
+				<p th:if="${#lists.isEmpty(collabAssegnati)}" class="hint">Nessun collaboratore assegnato.</p>
+				<ul th:if="${not #lists.isEmpty(collabAssegnati)}">
+					<li th:each="c : ${collabAssegnati}">
+						<span th:text="${c.lastName + ' ' + c.firstName + ' (@' + c.username + ')'}">collaboratore</span>
+						<a th:href="@{/rimuovi-collaboratore(taskId=${taskId},userId=${c.id},projId=${projId},wpId=${wpId})}">Rimuovi</a>
+					</li>
+				</ul>
+
+				<!-- Aggiungi collaboratori -->
+<div th:if="${not #lists.isEmpty(collabDisponibili)}" class="field">
+    <h4>Aggiungi collaboratori</h4>
+    <select name="collaboratori" multiple size="6">
+        <option th:each="c : ${collabDisponibili}"
+            th:value="${c.id}"
+            th:text="${c.lastName + ' ' + c.firstName + ' (@' + c.username + ')'}">collaboratore</option>
+    </select>
+    <p class="hint">Tieni premuto CTRL per selezionare più collaboratori.</p>
+</div>
+
+				<input type="submit" value="SALVA">
+			</form>
+		</section>
+
+	</main>
+</body>
+</html>
