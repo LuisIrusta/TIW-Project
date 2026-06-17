@@ -28,16 +28,16 @@ public class CreateProject extends AbstractServlet {
 
 		HttpSession session = request.getSession(false);
 		User admin = (User) session.getAttribute("user");
+
 		String title = request.getParameter("title");
-		String durationMonth = request.getParameter("durationMonths");
+		String durationMonth = request.getParameter("durationMonth");
 		String managerId = request.getParameter("managerId");
 
-		// valori grezzi da ripresentare in caso di errore
 		Map<String, String> formData = new HashMap<>();
 		formData.put("p_title", title);
 		formData.put("p_durationMonth", durationMonth);
 		formData.put("p_managerId", managerId);
-
+		
 		try {
 			if (title == null || title.isBlank()) {
 				fail(request, response, "The title of the project is mandatory", formData);
@@ -61,21 +61,16 @@ public class CreateProject extends AbstractServlet {
 				fail(request, response, "You must select a manager", formData);
 				return;
 			}
-
 			UserDAO userDAO = new UserDAO(connection);
 			User manager = userDAO.findById(manId);
-			
 			if (manager == null || !manager.isTechnical()) {
 				fail(request, response, "The selected manager is not valid", formData);
 				return;
 			}
-
 			ProjectDAO projectDAO = new ProjectDAO(connection);
 			projectDAO.createProject(title.trim(), durMonth, admin.getId(), manId);
-
 			String msg = URLEncoder.encode("Project created successfully", StandardCharsets.UTF_8);
 			response.sendRedirect(request.getContextPath() + "/home-admin?successMsg=" + msg);
-
 		} catch (SQLException e) {
 			throw new ServletException("Error while creating the project", e);
 		}

@@ -64,7 +64,7 @@ public class GoToHomeAdmin extends AbstractServlet {
             Object fd = request.getAttribute("formData");
             ctx.setVariable("formData", fd != null ? fd : Collections.emptyMap());
             
-            templateEngine.process("home-admin", ctx, response.getWriter());
+            templateEngine.process("homeAdmin", ctx, response.getWriter());
 
         } catch (SQLException e) {
             throw new ServletException("Error while loading the home administrator page", e);

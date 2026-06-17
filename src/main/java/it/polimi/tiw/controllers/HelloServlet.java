@@ -12,10 +12,14 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+//TODO Delete this class after log-in is done. This is just a testing class to see if the web services are functioning
+
 @WebServlet("/hello")
 public class HelloServlet extends AbstractServlet {
 
-    @Override
+    private static final long serialVersionUID = 1L;
+
+	@Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
         // 1) probar que la conexión funciona dentro de Tomcat: contar usuarios
         int total = 0;

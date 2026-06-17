@@ -2,20 +2,18 @@
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
-<title>Home Responsabile</title>
+<title>Home Collaboratore</title>
 <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 	<header>
 		<h1>Gestione e rendicontazione progetti</h1>
 		<span class="nav">
-			<a th:href="@{/monitor-projects}">Monitoraggio Progetti</a>
-			<a th:href="@{/monitor-collaborators}">Monitoraggio Collaboratori</a>
 			<a th:href="@{/login}">Logout</a>
 		</span>
 	</header>
 	<main>
-		<h2>Home Responsabile &mdash; <span th:text="${responsabile.fullName}">Nome Cognome</span></h2>
+		<h2>Home Collaboratore &mdash; <span th:text="${collaboratore.fullName}">Nome Cognome</span></h2>
 
 		<p class="msg-error"   th:if="${errorMsg   != null}" th:text="${errorMsg}">errore</p>
 		<p class="msg-success" th:if="${successMsg != null}" th:text="${successMsg}">ok</p>
@@ -23,10 +21,12 @@
 		<!-- ============ STEP 1: Seleziona Progetto ============ -->
 		<section>
 			<h3>1. Seleziona Progetto</h3>
+
 			<p class="hint" th:if="${#lists.isEmpty(progetti)}">
-				Non hai progetti in stato CREATO da assegnare.
+				Non sei assegnato ad alcun progetto attivo.
 			</p>
-			<form th:if="${not #lists.isEmpty(progetti)}" method="get" th:action="@{/home-manager}">
+
+			<form th:if="${not #lists.isEmpty(progetti)}" method="get" th:action="@{/home-collaborator}">
 				<div class="field">
 					<label for="projectId">Progetto</label>
 					<select id="projectId" name="projectId">
@@ -39,19 +39,12 @@
 				</div>
 				<input type="submit" value="SELEZIONA">
 			</form>
-
-			<!-- Bottone ASSEGNA: i progetti in ${progetti} sono solo CREATI -->
-			<form th:if="${selectedProject != null and selectedProject.created}"
-				method="post" th:action="@{/assign-project}">
-				<input type="hidden" name="projectId" th:value="${selectedProject.id}">
-				<input type="submit" value="ASSEGNA PROGETTO">
-			</form>
 		</section>
 
 		<!-- ============ STEP 2: Seleziona WP ============ -->
 		<section th:if="${selectedProject != null}">
 			<h3>2. Seleziona Work Package</h3>
-			<form method="get" th:action="@{/home-manager}">
+			<form method="get" th:action="@{/home-collaborator}">
 				<input type="hidden" name="projectId" th:value="${selectedProject.id}">
 				<div class="field">
 					<label for="wpId">Work Package</label>
@@ -70,7 +63,7 @@
 		<!-- ============ STEP 3: Seleziona Task ============ -->
 		<section th:if="${selectedWp != null and not #lists.isEmpty(tasks)}">
 			<h3>3. Seleziona Task</h3>
-			<form method="get" th:action="@{/home-manager}">
+			<form method="get" th:action="@{/home-collaborator}">
 				<input type="hidden" name="projectId" th:value="${selectedProject.id}">
 				<input type="hidden" name="wpId"      th:value="${selectedWp.id}">
 				<div class="field">
@@ -87,33 +80,59 @@
 			</form>
 		</section>
 
-		<!-- ============ STEP 4: Ore e Collaboratori ============ -->
+		<!-- ============ STEP 4: Dettaglio task e inserimento ore ============ -->
 		<section th:if="${selectedTask != null}">
-			<h3>4. Ore previste e collaboratori &mdash; <span th:text="${selectedTask.title}">task</span></h3>
+			<h3>4. Dettaglio Task &mdash; <span th:text="${selectedTask.title}">task</span></h3>
 
-			<form method="post" th:action="@{/save-assignment}">
-				<input type="hidden" name="taskId" th:value="${selectedTask.id}">
+			<!-- Dettaglio task -->
+			<table border="1">
+				<tr>
+					<td>Titolo</td>
+					<td th:text="${selectedTask.title}">titolo</td>
+				</tr>
+				<tr th:if="${selectedTask.description != null and not #strings.isEmpty(selectedTask.description)}">
+					<td>Descrizione</td>
+					<td th:text="${selectedTask.description}">descrizione</td>
+				</tr>
+				<tr>
+					<td>Mese inizio</td>
+					<td th:text="${selectedTask.startMonth}">1</td>
+				</tr>
+				<tr>
+					<td>Mese fine</td>
+					<td th:text="${selectedTask.endMonth}">1</td>
+				</tr>
+				<tr>
+					<td>Ore previste totali</td>
+					<td th:text="${totPreviste + ' h'}">0 h</td>
+				</tr>
+				<tr>
+					<td>Ore da te lavorate</td>
+					<td th:text="${totLavorate + ' h'}">0 h</td>
+				</tr>
+			</table>
 
-				<!-- Ore previste mese per mese: il servlet legge i parametri 'hours1','hours2',... -->
-				<h4>Ore previste mese per mese</h4>
-				<div th:each="mese : ${mesiTask}" class="field">
-					<label th:text="'Mese ' + ${mese}">Mese</label>
-					<input type="number" th:name="'hours' + ${mese}" min="0" max="744"
-						th:value="${orePreviste != null ? orePreviste[mese] : ''}">
+			<!-- Form inserimento ore -->
+			<h4>Registra ore lavorate</h4>
+			<!-- ATTENZIONE: il servlet legge i parametri in snake_case (task_id, month_index, hours) -->
+			<form method="post" th:action="@{/save-worked-hours}">
+				<input type="hidden" name="task_id" th:value="${selectedTask.id}">
+
+				<div class="field">
+					<label for="month_index">Mese</label>
+					<select id="month_index" name="month_index" required>
+						<option value="">-- seleziona il mese --</option>
+						<option th:each="m : ${mesiTask}"
+							th:value="${m}"
+							th:text="${'Mese ' + m}"
+							th:selected="${submittedMese != null and #strings.toString(m) == submittedMese}">mese</option>
+					</select>
 				</div>
 
-				<!-- Collaboratori: checkbox pre-selezionate per quelli gia' assegnati. -->
-				<!-- Il salvataggio sostituisce sempre la lista completa (no /rimuovi-collaboratore separato). -->
-				<h4>Collaboratori</h4>
-				<p class="hint" th:if="${#lists.isEmpty(collaboratori)}">
-					Nessun tecnico disponibile come collaboratore.
-				</p>
-				<div th:each="c : ${collaboratori}" class="field">
-					<label>
-						<input type="checkbox" name="collaborators" th:value="${c.id}"
-							th:checked="${assignedIds != null and assignedIds.contains(c.id)}">
-						<span th:text="${c.lastName + ' ' + c.firstName + ' (@' + c.username + ')'}">collaboratore</span>
-					</label>
+				<div class="field">
+					<label for="hours">Ore lavorate</label>
+					<input type="number" id="hours" name="hours" min="0" max="744"
+						th:value="${submittedOre}" required>
 				</div>
 
 				<input type="submit" value="SALVA">

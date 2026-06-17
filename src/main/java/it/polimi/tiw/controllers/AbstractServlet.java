@@ -54,12 +54,4 @@ public abstract class AbstractServlet extends HttpServlet {
             return defaultValue;
         }
     }
-    protected String extractTriggerMessage(SQLException e) {
-        String msg = e.getMessage();
-        if (msg != null && msg.contains("45000")) {
-            int idx = msg.lastIndexOf("45000");
-            return msg.substring(idx + 6).trim();
-        }
-        return "Database error.";
-    }
 }

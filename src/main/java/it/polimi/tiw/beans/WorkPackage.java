@@ -12,7 +12,8 @@ public class WorkPackage {
 	private int endMonth;
 	
 	private List<Task> tasks = new ArrayList<>();
-	//private List<MonthHours> orePerMese = new ArrayList<>();
+	
+	private List<MonthHours> monthHours = new ArrayList<>();
 	
 	public int getId() {
 		return id;
@@ -85,4 +86,12 @@ public class WorkPackage {
         for (Task t : tasks) tot += t.getTotalWorkedHours();
         return tot;
     }
+
+	public List<MonthHours> getMonthHours() {
+		return monthHours;
+	}
+
+	public void setMonthHours(List<MonthHours> monthHours) {
+		this.monthHours = monthHours;
+	}
 }

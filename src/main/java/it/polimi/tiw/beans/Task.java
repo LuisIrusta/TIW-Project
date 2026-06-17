@@ -15,7 +15,8 @@ public class Task {
 	private int totalPlannedHours;
     private int totalWorkedHours;
     
-    //private List<MonthHours> monthHours = new ArrayList<>();
+    private List<MonthHours> monthHours = new ArrayList<>();
+    
     private List<User> collaborators = new ArrayList<>();
 	
 	public int getId() {
@@ -109,4 +110,12 @@ public class Task {
 	public String getCode() {
         return "T" + wpOrderNumber + "." + orderNumber;
     }
+
+	public List<MonthHours> getMonthHours() {
+		return monthHours;
+	}
+
+	public void setMonthHours(List<MonthHours> monthHours) {
+		this.monthHours = monthHours;
+	}
 }

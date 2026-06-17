@@ -35,7 +35,8 @@ public class ProjectDAO {
     }
     
     public Project findById(int id) throws SQLException {
-        String query = "SELECT p.*, u.first_name AS f_name, u.last_name AS l_name FROM projects p JOIN users u ON p.manager_id = u.id WHERE p.id = ?";
+        String query = "SELECT p.*, u.first_name AS f_name, u.last_name AS l_name "
+        		+ "FROM projects p JOIN users u ON p.manager_id = u.id WHERE p.id = ?";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -44,54 +45,41 @@ public class ProjectDAO {
             }
         }
     }
-    public List<Project> findByCollaborator(int collabId) throws SQLException {
-        String query = "SELECT DISTINCT p.id, p.title, p.duration_months, p.state, " +
-                       "p.administrator_id, p.manager_id " +
-                       "FROM projects p " +
-                       "JOIN work_packages w ON w.project_id = p.id " +
-                       "JOIN tasks t ON t.wp_id = w.id " +
-                       "JOIN task_assignments ta ON ta.task_id = t.id " +
-                       "WHERE ta.collaborator_id = ? AND p.state = 'ASSIGNED' ORDER BY p.title";
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, collabId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return mapList(rs);
-            }
-        }
-    }
-    public List<Project> findByManager(int managerId) throws SQLException {
-        String query = "SELECT id, title, duration_months, state, administrator_id, manager_id " +
-                       "FROM projects WHERE manager_id = ? ORDER BY title";
-        try (PreparedStatement ps = connection .prepareStatement(query)) {
-            ps.setInt(1, managerId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return mapList(rs);
-            }
-        }
-    }
-    public Project findByIdAndManager(int id, int managerId) throws SQLException {
-        String query = "SELECT id, title, duration_months, state, administrator_id, manager_id " +
-                       "FROM projects WHERE id = ? AND manager_id = ? LIMIT 1";
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, id);
-            ps.setInt(2, managerId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return null;
-                return mapRow(rs);
-            }
-        }
-    }
-
     
     public List<Project> findByAdmin(int adminId) throws SQLException {
-    	String query = "SELECT p.*, u.first_name AS admin_first_name, u.last_name AS admin_last_name FROM projects p JOIN users u ON p.manager_id = u.id WHERE p.administrator_id = ? ORDER BY p.title";
+    	String query = "SELECT p.*, u.first_name AS admin_first_name, u.last_name AS admin_last_name "
+    			+ "FROM projects p JOIN users u ON p.manager_id = u.id "
+    			+ "WHERE p.administrator_id = ? "
+    			+ "ORDER BY p.title";
     	return queryProjects(query, adminId);
     }
     
     public List<Project> findCreatedByAdmin(int adminId) throws SQLException {
-        String query = "SELECT p.*, u.first_name AS f_name, u.last_name AS l_name FROM projects p JOIN users u ON p.manager_id = u.id WHERE p.administrator_id = ? AND p.state = 'CREATED' ORDER BY p.title";
+        String query = "SELECT p.*, u.first_name AS f_name, u.last_name AS l_name "
+        		+ "FROM projects p JOIN users u ON p.manager_id = u.id "
+        		+ "WHERE p.administrator_id = ? AND p.state = 'CREATED' "
+        		+ "ORDER BY p.title";
         return queryProjects(query, adminId);
     }
+    
+    public List<Project> findByCollaborator(int collabId) throws SQLException {
+        String query = "SELECT DISTINCT p.*, u.first_name AS r_first_name, u.last_name AS r_last_name "
+                     + "FROM projects p "
+                     + "JOIN users u       ON p.manager_id = u.id "
+                     + "JOIN work_packages wp ON wp.project_id = p.id "
+                     + "JOIN tasks t          ON t.wp_id = wp.id "
+                     + "JOIN task_assignments a  ON a.task_id = t.id "
+                     + "WHERE a.collaborator_id = ? ORDER BY p.title";
+        return queryProjects(query, collabId);
+    }
+    
+    public List<Project> findByManager(int managerId) throws SQLException {
+        String query = "SELECT p.*, u.first_name AS r_first_name, u.last_name AS r_last_name "
+                     + "FROM projects p JOIN users u ON p.manager_id = u.id "
+                     + "WHERE p.manager_id = ? ORDER BY p.title";
+        return queryProjects(query, managerId);
+    }
+
     
     public void loadStructure(Project project) throws SQLException {
         WorkPackageDAO wpDAO = new WorkPackageDAO(connection);
@@ -133,21 +121,5 @@ public class ProjectDAO {
         p.setAdministratorId(rs.getInt("administrator_id"));
         p.setManagerId(rs.getInt("manager_id"));
         return p;
-    }
-    private Project mapRow(ResultSet rs) throws SQLException {
-        Project p = new Project();
-        p.setId(rs.getInt("id"));
-        p.setTitle(rs.getString("title"));
-        p.setDurationMonths(rs.getInt("duration_months"));
-        p.setState(State.fromDB(rs.getString("state")));
-        p.setAdministratorId(rs.getInt("administrator_id"));
-        p.setManagerId(rs.getInt("manager_id"));
-        return p;
-    }
-
-    private List<Project> mapList(ResultSet rs) throws SQLException {
-        List<Project> list = new ArrayList<>();
-        while (rs.next()) list.add(mapRow(rs));
-        return list;
     }
 }

@@ -56,33 +56,35 @@ public class WorkPackageDAO {
 		}
 	}
 
-	public List<WorkPackage> findByProject(int idProgetto) throws SQLException {
+	public List<WorkPackage> findByProject(int idProject) throws SQLException {
 		String query = "SELECT * FROM work_packages WHERE project_id = ? ORDER BY order_number";
 		List<WorkPackage> result = new ArrayList<>();
 		try (PreparedStatement ps = connection.prepareStatement(query)) {
-			ps.setInt(1, idProgetto);
+			ps.setInt(1, idProject);
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) result.add(buildWorkPackage(rs));
 			}
 		}
 		return result;
 	}
-	   public List<WorkPackage> findByProjectAndCollaborator(int projectId, int collabId) throws SQLException {
-	        String query = "SELECT DISTINCT w.id, w.project_id, w.order_number, w.title, w.start_month, w.end_month " +
-	                       "FROM work_packages w " +
-	                       "JOIN tasks t ON t.wp_id = w.id " +
-	                       "JOIN task_assignments ta ON ta.task_id = t.id " +
-	                       "WHERE w.project_id = ? AND ta.collaborator_id = ? ORDER BY w.order_number";
-	    	List<WorkPackage> result = new ArrayList<>();
-	        try (PreparedStatement ps = connection.prepareStatement(query)) {
-	            ps.setInt(1, projectId);
-	            ps.setInt(2, collabId);
-				try (ResultSet rs = ps.executeQuery()) {
-					while (rs.next()) result.add(buildWorkPackage(rs));
-				}
-	        }
-	    	return result;
-	    }
+	
+	public List<WorkPackage> findByProjectAndCollaborator(int idProject, int idCollaborator) throws SQLException {
+        String query = "SELECT DISTINCT wp.* "
+                     + "FROM work_packages wp "
+                     + "JOIN tasks t         ON t.wp_id = wp.id "
+                     + "JOIN task_assignments a ON a.task_id = t.id "
+                     + "WHERE wp.project_id = ? AND a.collaborator_id = ? "
+                     + "ORDER BY wp.order_number";
+        List<WorkPackage> result = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, idProject);
+            ps.setInt(2, idCollaborator);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) result.add(buildWorkPackage(rs));
+            }
+        }
+        return result;
+    }
 
 	private WorkPackage buildWorkPackage(ResultSet rs) throws SQLException {
 		WorkPackage wp = new WorkPackage();

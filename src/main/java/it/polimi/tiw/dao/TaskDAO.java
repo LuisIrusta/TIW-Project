@@ -46,8 +46,34 @@ public class TaskDAO {
         }
     }
 
+	public Task findById(int id) throws SQLException {
+		String query = """
+		        SELECT t.*
+		             , wp.order_number AS wp_no
+		             , COALESCE((SELECT SUM(hours) FROM planned_hours WHERE task_id = t.id), 0) AS tot_prev
+		             , COALESCE((SELECT SUM(hours) FROM worked_hours  WHERE task_id = t.id), 0) AS tot_lav
+		        FROM tasks t
+		        JOIN work_packages wp ON t.wp_id = wp.id
+		        WHERE t.id = ?
+		        """;
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return buildTask(rs);
+                return null;
+            }
+        }
+    }
+	
 	public List<Task> findByWorkPackage(int idWp) throws SQLException {
-		String query = "SELECT t.*, wp.order_number AS wp_no FROM tasks t JOIN work_packages wp ON t.wp_id = wp.id WHERE t.wp_id = ? ORDER BY t.order_number";
+		String query = "SELECT t.*"
+	            + ", wp.order_number AS wp_no"
+	            + ", COALESCE((SELECT SUM(hours) FROM planned_hours WHERE task_id = t.id), 0) AS tot_prev"
+	            + ", COALESCE((SELECT SUM(hours) FROM worked_hours  WHERE task_id = t.id), 0) AS tot_lav"
+	            + " FROM tasks t"
+	            + " JOIN work_packages wp ON t.wp_id = wp.id"
+	            + " WHERE t.wp_id = ?"
+	            + " ORDER BY t.order_number";
 		List<Task> result = new ArrayList<>();
 		try (PreparedStatement ps = connection.prepareStatement(query)) {
 			ps.setInt(1, idWp);
@@ -57,46 +83,41 @@ public class TaskDAO {
 		}
 		return result;
 	}
-	public List<Task> findByWpAndCollaborator(int wpId, int collabId) throws SQLException {
-        String query = "SELECT t.id, t.wp_id, t.order_number, t.title, t.description, t.start_month, t.end_month " +
-                       "FROM tasks t JOIN task_assignments ta ON ta.task_id = t.id " +
-                       "WHERE t.wp_id = ? AND ta.collaborator_id = ? ORDER BY t.order_number";
+	
+	public List<Task> findByWorkPackageAndCollaborator(int idWp, int idCollaborator) throws SQLException {
+		String query = "SELECT t.*"
+	            + ", wp.order_number AS wp_no"
+	            + ", COALESCE((SELECT SUM(hours) FROM planned_hours WHERE task_id = t.id), 0) AS tot_prev"
+	            + ", COALESCE((SELECT SUM(hours) FROM worked_hours  WHERE task_id = t.id), 0) AS tot_lav"
+	            + " FROM tasks t"
+	            + " JOIN work_packages wp ON t.wp_id = wp.id"
+	            + " JOIN task_assignments a ON a.task_id = t.id"
+	            + " WHERE t.wp_id = ? AND a.collaborator_id = ?"
+	            + " ORDER BY t.order_number";
         List<Task> result = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, wpId);
-            ps.setInt(2, collabId);
-			try (ResultSet rs = ps.executeQuery()) {
-				while (rs.next()) result.add(buildTask(rs));
-			}
-        }
-        return result;  
-    }
-    public Task findById(int id) throws SQLException {
-        String query = "SELECT id, wp_id, order_number, title, description, start_month, end_month " +
-                       "FROM tasks WHERE id = ? LIMIT 1";
-      
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, id);
+            ps.setInt(1, idWp);
+            ps.setInt(2, idCollaborator);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return buildTask(rs);
-                return null;
+                while (rs.next()) result.add(buildTask(rs));
             }
         }
-       
-        
-   }
+        return result;
+    }
 
 	private Task buildTask(ResultSet rs) throws SQLException {
 		Task t = new Task();
 		t.setId(rs.getInt("id"));
 		t.setWpId(rs.getInt("wp_id"));
 		t.setOrderNumber(rs.getInt("order_number"));
+		t.setWpOrderNumber(rs.getInt("wp_no"));
 		t.setTitle(rs.getString("title"));
 		t.setDescription(rs.getString("description"));
 		t.setStartMonth(rs.getInt("start_month"));
 		t.setEndMonth(rs.getInt("end_month"));
+		t.setTotalPlannedHours(rs.getInt("tot_prev"));
+	    t.setTotalWorkedHours(rs.getInt("tot_lav"));
 		return t;
 	}
-
 
 }

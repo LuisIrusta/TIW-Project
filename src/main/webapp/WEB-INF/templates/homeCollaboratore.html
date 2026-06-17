@@ -1,160 +1,18 @@
 <!DOCTYPE html>
-<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
-<title>Home Collaboratore</title>
-<link rel="stylesheet" th:href="@{/css/style.css}">
+    <meta charset="UTF-8">
+    <title>Home Colaborador (placeholder)</title>
 </head>
 <body>
-	<header>
-		<h1>Gestione e rendicontazione progetti</h1>
-		<span class="nav">
-			<a th:href="@{/login}">Logout</a>
-		</span>
-	</header>
-	<main>
-		<h2>Home Collaboratore &mdash; <span th:text="${collaboratore.fullName}">Nome Cognome</span></h2>
+    <h1>Home Colaborador — placeholder</h1>
 
-		<p class="msg-error"   th:if="${errorMsg   != null}" th:text="${errorMsg}">errore</p>
-		<p class="msg-success" th:if="${successMsg != null}" th:text="${successMsg}">ok</p>
+    <p style="color:red;"  th:if="${errorMsg}"   th:text="${errorMsg}">errorMsg</p>
+    <p style="color:green;" th:if="${successMsg}" th:text="${successMsg}">successMsg</p>
 
-		<!-- ============ STEP 1: Seleziona Progetto ============ -->
-		<section>
-			<h3>1. Seleziona Progetto</h3>
+    <p th:if="${submittedMonth}">submittedMonth = <span th:text="${submittedMonth}">M</span></p>
+    <p th:if="${submittedHours}">submittedHours = <span th:text="${submittedHours}">H</span></p>
 
-			<p class="hint" th:if="${#lists.isEmpty(progetti)}">
-				Non sei assegnato ad alcun progetto attivo.
-			</p>
-
-			<form th:if="${not #lists.isEmpty(progetti)}" method="get" th:action="@{/homeCollaboratore}">
-				<div class="field">
-					<label for="projId">Progetto</label>
-					<select id="projId" name="projId">
-						<option value="">-- seleziona un progetto --</option>
-						<option th:each="p : ${progetti}"
-							th:value="${p.id}"
-							th:text="${p.title + ' (' + p.state + ')'}"
-							th:selected="${p.id == projId}">progetto</option>
-					</select>
-				</div>
-				<input type="submit" value="SELEZIONA">
-			</form>
-		</section>
-
-		<!-- ============ STEP 2: Seleziona WP ============ -->
-		<section th:if="${progetto != null}">
-			<h3>2. Seleziona Work Package</h3>
-			<form method="get" th:action="@{/homeCollaboratore}">
-				<input type="hidden" name="projId" th:value="${projId}">
-				<div class="field">
-					<label for="wpId">Work Package</label>
-					<select id="wpId" name="wpId">
-						<option value="">-- seleziona un WP --</option>
-						<option th:each="wp : ${wps}"
-							th:value="${wp.id}"
-							th:text="${'WP' + wp.orderNumber + ' — ' + wp.title + ' (mesi ' + wp.startMonth + '–' + wp.endMonth + ')'}"
-							th:selected="${wp.id == wpId}">wp</option>
-					</select>
-				</div>
-				<input type="submit" value="SELEZIONA">
-			</form>
-		</section>
-
-		<!-- ============ STEP 3: Seleziona Task ============ -->
-		<section th:if="${wpSel != null and not #lists.isEmpty(tasks)}">
-			<h3>3. Seleziona Task</h3>
-			<form method="get" th:action="@{/homeCollaboratore}">
-				<input type="hidden" name="projId" th:value="${projId}">
-				<input type="hidden" name="wpId"   th:value="${wpId}">
-				<div class="field">
-					<label for="taskId">Task</label>
-					<select id="taskId" name="taskId">
-						<option value="">-- seleziona un task --</option>
-						<option th:each="t : ${tasks}"
-							th:value="${t.id}"
-							th:text="${'T' + t.orderNumber + ' — ' + t.title + ' (mesi ' + t.startMonth + '–' + t.endMonth + ')'}"
-							th:selected="${t.id == taskId}">task</option>
-					</select>
-				</div>
-				<input type="submit" value="SELEZIONA">
-			</form>
-		</section>
-
-		<!-- ============ STEP 4: Dettaglio task e inserimento ore ============ -->
-		<section th:if="${task != null}">
-			<h3>4. Dettaglio Task &mdash; <span th:text="${task.title}">task</span></h3>
-
-			<!-- Dettaglio task -->
-			<table border="1">
-				<tr>
-					<td>Titolo</td>
-					<td th:text="${task.title}">titolo</td>
-				</tr>
-				<tr th:if="${task.description != null and not #strings.isEmpty(task.description)}">
-					<td>Descrizione</td>
-					<td th:text="${task.description}">descrizione</td>
-				</tr>
-				<tr>
-					<td>Mese inizio</td>
-					<td th:text="${task.startMonth}">1</td>
-				</tr>
-				<tr>
-					<td>Mese fine</td>
-					<td th:text="${task.endMonth}">1</td>
-				</tr>
-				<tr>
-					<td>Ore previste totali</td>
-					<td th:text="${orePrevisteTotali + ' h'}">0 h</td>
-				</tr>
-				<tr>
-					<td>Ore da te lavorate</td>
-					<td th:text="${oreLavorateTotali + ' h'}">0 h</td>
-				</tr>
-			</table>
-
-			<!-- Tabella ore lavorate per mese -->
-			<h4>Ore lavorate per mese</h4>
-			<table border="1">
-				<thead>
-					<tr>
-						<th th:each="m : ${#numbers.sequence(task.startMonth, task.endMonth)}"
-							th:text="${'Mese ' + m}">mese</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td th:each="m : ${#numbers.sequence(task.startMonth, task.endMonth)}"
-							th:text="${oreLavorate[m] != null ? oreLavorate[m] + ' h' : '0 h'}">0 h</td>
-					</tr>
-				</tbody>
-			</table>
-
-			<!-- Form inserimento ore -->
-			<h4>Registra ore lavorate</h4>
-			<form method="post" th:action="@{/salva-ore}">
-				<input type="hidden" name="projId"  th:value="${projId}">
-				<input type="hidden" name="wpId"    th:value="${wpId}">
-				<input type="hidden" name="taskId"  th:value="${taskId}">
-
-				<div class="field">
-					<label for="mese">Mese</label>
-					<select id="mese" name="mese" required>
-						<option value="">-- seleziona il mese --</option>
-						<option th:each="m : ${#numbers.sequence(task.startMonth, task.endMonth)}"
-							th:value="${m}"
-							th:text="${'Mese ' + m + ' (' + (oreLavorate[m] != null ? oreLavorate[m] : 0) + ' h già registrate)'}">mese</option>
-					</select>
-				</div>
-
-				<div class="field">
-					<label for="ore">Ore lavorate</label>
-					<input type="number" id="ore" name="ore" min="0" max="744" required>
-				</div>
-
-				<input type="submit" value="SALVA">
-			</form>
-		</section>
-
-	</main>
+    <p>Esta es una plantilla provisional. Mi compañero está trabajando en la versión completa.</p>
 </body>
 </html>
