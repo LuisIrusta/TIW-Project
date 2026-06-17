@@ -41,7 +41,17 @@ public class UserDAO {
             }
         }
     }
-    
+    public User findByUsername(String userN) throws SQLException {
+    	String query = "SELECT id, username, password_hash, first_name, last_name, photo, role " +
+                " FROM users WHERE username = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, userN);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return buildUser(rs);
+                return null;
+            }
+        }
+    }
     public List<User> findAllTechnicals() throws SQLException{
     	String query = "SELECT id, username, first_name, last_name, photo, role FROM users WHERE role = 'technical' ORDER BY last_name, first_name";
     	List<User> result = new ArrayList<>();
@@ -73,7 +83,7 @@ public class UserDAO {
     
     public List<User> findTechnicalsExcept(int excludeId) throws SQLException {
         String query = "SELECT id, username, first_name, last_name, photo, role "
-                     + "FROM users WHERE role = 'technical' AND id <> ? "
+                     + "FROM users WHERE role = 'technical' OR role = 'collaborator' AND id <> ? "
                      + "ORDER BY last_name, first_name";
         List<User> result = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -95,4 +105,19 @@ public class UserDAO {
         u.setPersonType(PersonType.fromDB(rs.getString("role")));
         return u;
     }
+    public void createUser(String username, String hash, String firstName, String lastName, 
+            PersonType role) throws SQLException {
+    			String query = "INSERT INTO users (username, password_hash, first_name, last_name, role) VALUES (?, ?, ?, ?, ?)";
+
+    						try (PreparedStatement ps = connection.prepareStatement(query)) {
+    								ps.setString(1, username.trim());
+    								ps.setString(2, hash);
+    								ps.setString(3, firstName.trim());
+    								ps.setString(4, lastName.trim());
+    								ps.setString(5, role.toString());
+    								ps.executeUpdate(); 
+    						}
+    				}	
+
+	
 }

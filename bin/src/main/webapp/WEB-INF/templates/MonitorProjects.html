@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Monitoraggio Progetti</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	<header>
+		<h1>Gestione e rendicontazione progetti</h1>
+		<span class="nav">
+			<a th:href="@{/home-manager}">Home Responsabile</a>
+			<a th:href="@{/monitor-collaborators}">Monitoraggio Collaboratori</a>
+			<a th:href="@{/login}">Logout</a>
+		</span>
+	</header>
+	<main>
+		<h2>Monitoraggio Progetti &mdash; <span th:text="${responsabile.fullName}">Nome Cognome</span></h2>
+
+		<p class="msg-error"   th:if="${errorMsg   != null}" th:text="${errorMsg}">errore</p>
+		<p class="msg-success" th:if="${successMsg != null}" th:text="${successMsg}">ok</p>
+
+		<!-- Selezione progetto -->
+		<section>
+			<p class="hint" th:if="${#lists.isEmpty(progetti)}">
+				Nessun progetto in stato ASSEGNATO o CONCLUSO da monitorare.
+			</p>
+			<form th:if="${not #lists.isEmpty(progetti)}" method="get" th:action="@{/monitor-projects}">
+				<div class="field">
+					<label for="project_id">Progetto</label>
+					<!-- IMPORTANTE: il servlet legge 'project_id' (snake_case) -->
+					<select id="project_id" name="project_id">
+						<option value="">-- seleziona un progetto --</option>
+						<option th:each="p : ${progetti}"
+							th:value="${p.id}"
+							th:text="${p.title + ' (' + p.state + ')'}"
+							th:selected="${selected != null and p.id == selected.id}">progetto</option>
+					</select>
+				</div>
+				<input type="submit" value="VISUALIZZA">
+			</form>
+		</section>
+
+		<!-- Tabella monitoraggio del progetto selezionato -->
+		<section th:if="${selected != null and not #lists.isEmpty(selected.workPackages)}">
+			<h3>Progetto: <span th:text="${selected.title}">titolo</span>
+				&mdash; <span th:text="${selected.state}">stato</span>
+			</h3>
+
+			<div th:each="wp : ${selected.workPackages}">
+				<h4 th:text="${'WP' + wp.orderNumber + ' — ' + wp.title + ' (mesi ' + wp.startMonth + '–' + wp.endMonth + ')'}">WP</h4>
+
+				<table border="1">
+					<thead>
+						<tr>
+							<th>Task</th>
+							<th th:each="m : ${mesi}"
+								th:text="${'M' + m + ' Prev. / Lav.'}">mese</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="t : ${wp.tasks}">
+							<td th:text="${'T' + t.orderNumber + ' — ' + t.title}">task</td>
+							<!-- Ogni task ha gia' monthHours preparato dal servlet, lunghezza = durata progetto -->
+							<td th:each="mh : ${t.monthHours}">
+								<span th:if="${mh.active}">
+									<span th:text="${mh.plannedHours}">0</span>
+									/
+									<span th:text="${mh.workedHours}"
+										th:class="${mh.workedHours >= mh.plannedHours ? 'ore-ok' : 'ore-ko'}">0</span>
+								</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<!-- Bottone CONCLUDI -->
+			<form th:if="${canConclude}" method="post" th:action="@{/conclude-project}">
+				<input type="hidden" name="projectId" th:value="${selected.id}">
+				<input type="submit" value="CONCLUDI PROGETTO">
+			</form>
+			<p class="hint" th:if="${selected.assigned and not canConclude}">
+				Il bottone CONCLUDI apparirà quando le ore lavorate raggiungeranno quelle previste per ogni task.
+			</p>
+		</section>
+
+	</main>
+</body>
+</html>

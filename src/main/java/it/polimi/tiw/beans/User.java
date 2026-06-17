@@ -68,4 +68,12 @@ public class User {
 	public boolean isTechnical() {
 		return personType.equals(PersonType.TECHNICAL);
 	}
+	
+	public boolean isCollaborator() {
+		if(personType.equals(PersonType.COLLABORATOR) || personType.equals(PersonType.TECHNICAL)) {
+			return true;
+		}
+		
+	return false;
+}
 }

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Home Amministratore</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	<header>
+		<h1>Gestione e rendicontazione progetti</h1>
+		<span class="nav"> <a th:href="@{/verifica-progetti}">Verifica
+				progetti</a> <a th:href="@{/login}">Logout</a><!--in caso si crea un html per il log out -->
+		</span>
+	</header>
+	<main>
+		<!-- saluto con nome e cognome dell'utente -->
+		<h2>
+			Home Amministratore &mdash; <span th:text="${admin.fullName}">Nome
+				Cognome</span>
+		</h2>
+
+		<p class="msg-error" th:if="${errorMsg != null}" th:text="${errorMsg}">errore</p>
+		<p class="msg-success" th:if="${successMsg != null}"
+			th:text="${successMsg}">ok</p>
+
+		<!-- ============ FORM 1: CREA PROGETTO ============ -->
+		<section>
+			<h3>Crea un nuovo progetto</h3>
+			<form method="post" th:action="@{/create-project}">
+				<div class="field">
+					<label for="p_title">Titolo</label> <input type="text"
+						id="p_title" name="title"
+						th:value="${formData['p_title']}" required>
+				</div>
+				<div class="field">
+					<label for="p_duration_month">Durata (mesi)</label> <input type="number"
+						id="p_duration_month" name="durationMonth" min="1"
+						th:value="${formData['p_durationMonth']}" required>
+				</div>
+				<div class="field">
+					<label for="p_manager">Responsabile</label> <select id="p_manager"
+						name="managerId" required>
+						<option value="">-- seleziona un tecnico --</option>
+						<option th:each="t : ${technicals}" th:value="${t.id}"
+							th:text="${t.lastName + ' ' + t.firstName + ' (' + t.username + ')'}"
+							th:selected="${formData['p_managerId'] == #strings.toString(t.id)}">
+							tecnico</option>
+					</select>
+				</div>
+				<input type="submit" value="SALVA PROGETTO">
+			</form>
+		</section>
+
+		<p class="hint" th:if="${createdProjects.isEmpty()}">Non hai
+			progetti nello stato CREATO: crea prima un progetto per poter
+			aggiungere Work Package e task.</p>
+
+		<!-- ============ FORM 2: CREA WORK PACKAGE ============ -->
+		<section>
+			<h3>Crea un nuovo Work Package</h3>
+			<form method="post" th:action="@{/create-wp}">
+				<div class="field">
+					<label for="wp_prog">Progetto (stato CREATO)</label> <select
+						id="wp_prog" name="projectId" required>
+						<option value="">-- seleziona un progetto --</option>
+						<option th:each="p : ${createdProjects}" th:value="${p.id}"
+							th:text="${p.title + ' (' + p.durationMonths + ' mesi)'}"
+							th:selected="${formData['wp_projectId'] == #strings.toString(p.id)}">
+							progetto</option>
+					</select>
+				</div>
+				<div class="field">
+					<label for="wp_titolo">Titolo</label> <input type="text"
+						id="wp_title" name="title"
+						th:value="${formData['wp_title']}" required>
+				</div>
+				<div class="field">
+					<label for="wp_sm">Mese di inizio</label> <input type="number"
+						id="wp_sm" name="startMonth" min="1"
+						th:value="${formData['wp_startMonth']}" required>
+				</div>
+				<div class="field">
+					<label for="wp_em">Mese di fine</label> <input type="number"
+						id="wp_em" name="endMonth" min="1"
+						th:value="${formData['wp_endMonth']}" required>
+				</div>
+				<p class="hint">Il numero d'ordine del WP viene assegnato
+					automaticamente. I mesi devono essere compresi nella durata del
+					progetto.</p>
+				<input type="submit" value="SALVA WP">
+			</form>
+		</section>
+
+		<!-- ============ FORM 3: CREA TASK ============ -->
+		<section>
+			<h3>Crea un nuovo task</h3>
+			<form method="post" th:action="@{/create-task}">
+				<div class="field">
+					<label for="t_wp">Work Package</label>
+					<!-- i WP sono raggruppati per progetto (solo progetti CREATI) -->
+					<select id="t_wp" name="wpId" required>
+						<option value="">-- seleziona un WP --</option>
+						<optgroup th:each="p : ${createdProjects}" th:label="${p.title}">
+							<option th:each="wp : ${p.workPackages}" th:value="${wp.id}"
+								th:text="${wp.code + ' - ' + wp.title
+                                          + ' (mesi ' + wp.startMonth + '-' + wp.endMonth + ')'}"
+								th:selected="${formData['t_wpId'] == #strings.toString(wp.id)}">
+								WP</option>
+						</optgroup>
+					</select>
+				</div>
+				<div class="field">
+					<label for="t_title">Titolo</label> <input type="text"
+						id="t_title" name="title"
+						th:value="${formData['t_title']}"required>
+				</div>
+				<div class="field">
+					<label for="t_desc">Descrizione</label>
+					<textarea id="t_desc" name="description" rows="3"
+						th:text="${formData['t_description']}"></textarea>
+				</div>
+				<div class="field">
+					<label for="t_sm">Mese di inizio</label> <input type="number"
+						id="t_sm" name="startMonth" min="1"
+						th:value="${formData['t_startMonth']}" required>
+				</div>
+				<div class="field">
+					<label for="t_em">Mese di fine</label> <input type="number"
+						id="t_em" name="endMonth" min="1"
+						th:value="${formData['t_endMonth']}" required>
+				</div>
+				<p class="hint">Il numero d'ordine del task (Tx.y) viene
+					assegnato automaticamente. I mesi devono essere compresi
+					nell'intervallo del WP.</p>
+				<input type="submit" value="SALVA TASK">
+			</form>
+		</section>
+	</main>
+</body>
+</html>

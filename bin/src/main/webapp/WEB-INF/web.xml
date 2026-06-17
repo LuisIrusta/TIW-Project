@@ -2,7 +2,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
 	version="6.0">
-	<display-name>tiw_db</display-name>
+	<display-name>TIW-Project</display-name>
 	<context-param>
 		<param-name>dbDriver</param-name>
 		<param-value>com.mysql.cj.jdbc.Driver</param-value>
@@ -13,11 +13,11 @@
 	</context-param>
 	<context-param>
 		<param-name>dbUser</param-name>
-		<param-value>root</param-value>
+		<param-value>luis</param-value>
 	</context-param>
 	<context-param>
 		<param-name>dbPassword</param-name>
-		<param-value>a214425</param-value>
+		<param-value>Password@2026</param-value>
 	</context-param>
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>

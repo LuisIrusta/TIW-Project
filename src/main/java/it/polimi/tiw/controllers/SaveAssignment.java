@@ -87,7 +87,7 @@ public class SaveAssignment extends AbstractServlet {
                         return;
                     }
                     User c = userDAO.findById(cid);
-                    if (c == null || !c.isTechnical()) {
+                    if (c == null || !c.isTechnical() && !c.isCollaborator()) {
                         fail(request, response, project.getId(), wp.getId(), task.getId(),
                                 "One of the selected collaborators is not valid",
                                 readSubmittedHours(request, task), submittedColls);
