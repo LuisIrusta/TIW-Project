@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Registrazione</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	<header>
+		<h1>Gestione e rendicontazione progetti</h1>
+		<span class="nav">
+			<a th:href="@{/login}">Accedi</a>
+		</span>
+	</header>
+	<main>
+		<h2>Crea un nuovo account</h2>
+
+		<p class="msg-error" th:if="${errorMsg != null}" th:text="${errorMsg}">errore</p>
+
+		<section>
+			<form method="post" th:action="@{/register}">
+
+				<div class="field">
+					<label for="first_name">Nome</label>
+					<input type="text" id="first_name" name="first_name"
+						th:value="${formData['first_name']}" required>
+				</div>
+
+				<div class="field">
+					<label for="last_name">Cognome</label>
+					<input type="text" id="last_name" name="last_name"
+						th:value="${formData['last_name']}" required>
+				</div>
+
+				<div class="field">
+					<label for="username">Username</label>
+					<input type="text" id="username" name="username"
+						th:value="${formData['username']}" required>
+				</div>
+
+				<div class="field">
+					<label for="password">Password</label>
+					<input type="password" id="password" name="password" required>
+				</div>
+
+				<div class="field">
+					<label for="conferma">Conferma password</label>
+					<input type="password" id="conferma" name="conferma" required>
+				</div>
+				
+				<div class="field role-group">
+    <label>Ruoli</label>
+    
+    <div>
+        <input type="radio" id="administrative" name="role" value="ADMINISTRATIVE" class="role-checkbox"
+               th:checked="${formData['role'] == 'ADMIN'}">
+        <label for="administrative">Amministratore</label>
+    </div>
+    
+    <div>
+        <input type="radio" id="technical" name="role" value="TECHNICAL" class="role-checkbox"
+               th:checked="${formData['role'] == 'TECHNICAL'}">
+        <label for="technical">Responsabile (this role includes all the functions of collaborator)</label>
+    </div>
+    
+    <div>
+        <input type="radio" id="collaborator" name="role" value="COLLABORATOR" class="role-checkbox"
+               th:checked="${formData['role'] == 'COLLABORATOR'}">
+        <label for="collaborator">Collaboratore</label>
+    </div>
+</div>
+		<p class="hint">Seleziona un ruolo.
+				 il nickname non deve essere gia presente.</p>
+
+				<input type="submit" value="REGISTRATI">
+			</form>
+		</section>
+	</main>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	<header>
+		<h1>Gestione e rendicontazione progetti</h1>
+		<span class="nav">
+			<a th:href="@{/register}">Registrati</a>
+		</span>
+	</header>
+	<main>
+		<h2>Accedi al sistema</h2>
+
+		<p class="msg-error" th:if="${errorMsg != null}" th:text="${errorMsg}">errore</p>
+		<p class="msg-success" th:if="${successMsg != null}" th:text="${successMsg}">ok</p>
+
+		<section>
+			<form method="post" th:action="@{/login}">
+
+				<div class="field">
+					<label for="username">Username</label>
+					<input type="text" id="username" name="username" required>
+				</div>
+
+				<div class="field">
+					<label for="password">Password</label>
+					<input type="password" id="password" name="password" required>
+				</div>
+
+				<div class="field">
+					<label for="tipo">Accedi come</label>
+					<select id="tipo" name="tipo" required>
+						<option value="">-- seleziona un ruolo --</option>
+						<option value="ADMINISTRATIVE">Amministratore</option>
+						<option value="TECHNICAL">Responsabile</option>
+						<option value="COLLABORATOR">Collaboratore</option>
+					</select>
+				</div>
+
+				<input type="submit" value="ACCEDI">
+			</form>
+		</section>
+	</main>
+</body>
+</html>

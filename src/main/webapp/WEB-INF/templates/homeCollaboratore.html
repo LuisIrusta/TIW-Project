@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Colaborador (placeholder)</title>
+</head>
+<body>
+    <h1>Home Colaborador — placeholder</h1>
+
+    <p style="color:red;"  th:if="${errorMsg}"   th:text="${errorMsg}">errorMsg</p>
+    <p style="color:green;" th:if="${successMsg}" th:text="${successMsg}">successMsg</p>
+
+    <p th:if="${submittedMonth}">submittedMonth = <span th:text="${submittedMonth}">M</span></p>
+    <p th:if="${submittedHours}">submittedHours = <span th:text="${submittedHours}">H</span></p>
+
+    <p>Esta es una plantilla provisional. Mi compañero está trabajando en la versión completa.</p>
+</body>
+</html>
