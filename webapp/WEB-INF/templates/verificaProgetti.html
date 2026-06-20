@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Verifica progetti</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header>
+    <h1>Gestione e rendicontazione progetti</h1>
+    <span class="nav">
+        <a th:href="@{/home-admin}">Home</a>
+        <a th:href="@{/login}">Logout</a>
+    </span>
+</header>
+<main>
+    <h2>Verifica progetti &mdash;
+        <span th:text="${admin.fullName}">Nome Cognome</span></h2>
+
+    <p class="hint" th:if="${projects.isEmpty()}">
+        Non hai ancora creato alcun progetto.</p>
+
+    <!-- elenco selezionabile dei progetti creati dall'amministratore -->
+    <section th:unless="${projects.isEmpty()}">
+        <h3>Seleziona un progetto</h3>
+        <!-- versione HTML puro: la selezione si conferma con il bottone (niente JavaScript) -->
+        <form method="get" th:action="@{/verifica-progetti}">
+            <select name="projectId">
+                <option th:each="p : ${projects}" th:value="${p.id}"
+                        th:text="${p.title + ' [' + p.state + ']'}"
+                        th:selected="${selected != null and selected.id == p.id}">progetto</option>
+            </select>
+            <button type="submit">Mostra</button>
+        </form>
+    </section>
+
+    <!-- struttura gerarchica del progetto selezionato -->
+    <section th:if="${selected != null}">
+        <h3>
+            Progetto: <span th:text="${selected.title}">Titolo</span>
+            <span class="state" th:classappend="'state-' + ${selected.state}"
+                  th:text="${selected.state}">STATO</span>
+        </h3>
+        <p class="hint">
+            Durata: <span th:text="${selected.durationMonths}">N</span> mesi &mdash;
+            Responsabile:
+            <span th:text="${selected.managerId}">R</span>
+        </p>
+
+        <p th:if="${selected.workPackages.isEmpty()}" class="hint">
+            Il progetto non contiene ancora Work Package.</p>
+
+        <ul class="tree" th:unless="${selected.workPackages.isEmpty()}">
+            <li th:each="wp : ${selected.workPackages}">
+                <span class="wp-node">
+                    <span class="badge" th:text="${wp.code}">WP1</span>
+                    <span th:text="${wp.title}">titolo WP</span>
+                    (mesi <span th:text="${wp.startMonth}">x</span>&ndash;<span
+                          th:text="${wp.endMonth}">y</span>)
+                </span>
+                <ul>
+                    <li th:if="${wp.tasks.isEmpty()}" class="hint">nessun task</li>
+                    <li th:each="t : ${wp.tasks}">
+                        <span class="badge" th:text="${t.code}">T1.1</span>
+                        <span th:text="${t.title}">titolo task</span>,
+                        mesi <span th:text="${t.startMonth}">x</span>&ndash;<span
+                             th:text="${t.endMonth}">y</span>,
+                        totale ore previste:
+                        <strong th:text="${t.totalPlannedHours}">0</strong>,
+                        totale ore lavorate:
+                        <strong th:text="${t.totalWorkedHours}">0</strong>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+</main>
+</body>
+</html>

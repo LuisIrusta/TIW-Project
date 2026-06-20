@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Monitoraggio Collaboratori</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	<header>
+		<h1>Gestione e rendicontazione progetti</h1>
+		<span class="nav">
+			<a th:href="@{/home-manager}">Home Responsabile</a>
+			<a th:href="@{/monitor-projects}">Monitoraggio Progetti</a>
+			<a th:href="@{/login}">Logout</a>
+		</span>
+	</header>
+	<main>
+		<h2>Monitoraggio Collaboratori &mdash; <span th:text="${responsabile.fullName}">Nome Cognome</span></h2>
+
+		<!-- Selezione collaboratore -->
+		<section>
+			<p class="hint" th:if="${#lists.isEmpty(collaboratori)}">
+				Nessun collaboratore lavora attualmente sui tuoi progetti.
+			</p>
+			<form th:if="${not #lists.isEmpty(collaboratori)}" method="get" th:action="@{/monitor-collaborators}">
+				<div class="field">
+					<label for="collaborator_id">Collaboratore</label>
+					<!-- IMPORTANTE: il servlet legge 'collaborator_id' (snake_case) -->
+					<select id="collaborator_id" name="collaborator_id">
+						<option value="">-- seleziona un collaboratore --</option>
+						<option th:each="c : ${collaboratori}"
+							th:value="${c.id}"
+							th:text="${c.lastName + ' ' + c.firstName + ' (@' + c.username + ')'}"
+							th:selected="${selected != null and c.id == selected.id}">collaboratore</option>
+					</select>
+				</div>
+				<input type="submit" value="VISUALIZZA">
+			</form>
+		</section>
+
+		<!-- Dati del collaboratore selezionato -->
+		<section th:if="${selected != null}">
+			<h3>Collaboratore: <span th:text="${selected.fullName}">Nome</span>
+				&mdash; <span th:text="'@' + ${selected.username}">username</span>
+			</h3>
+
+			<p class="hint" th:if="${#lists.isEmpty(progetti)}">
+				Questo collaboratore non lavora attualmente su alcun tuo progetto.
+			</p>
+
+			<div th:each="p : ${progetti}">
+				<h4>Progetto: <span th:text="${p.title}">titolo</span>
+					&mdash; <span th:text="${p.state}">stato</span>
+				</h4>
+
+				<div th:each="wp : ${p.workPackages}">
+					<h5 th:text="${'WP' + wp.orderNumber + ' — ' + wp.title}">WP</h5>
+
+					<table border="1">
+						<thead>
+							<tr>
+								<th>Task</th>
+								<th th:each="m : ${#numbers.sequence(1, p.durationMonths)}"
+									th:text="${'M' + m}">mese</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="t : ${wp.tasks}">
+								<td th:text="${'T' + t.orderNumber + ' — ' + t.title}">task</td>
+								<!-- monthHours preparato dal servlet, lunghezza = durata progetto -->
+								<td th:each="mh : ${t.monthHours}">
+									<span th:if="${mh.active}" th:text="${mh.workedHours}">0</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</section>
+
+	</main>
+</body>
+</html>

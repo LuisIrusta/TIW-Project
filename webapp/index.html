@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accesso Piattaforma</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            padding: 50px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+            text-align: center;
+        }
+
+        /* ── Tab ─────────────────────────────────────── */
+        .tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #007bff;
+            border-bottom: 3px solid #007bff;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ── Campi form (condivisi tra login e register) ── */
+        .form-group,
+        .field {
+            margin-bottom: 15px;
+        }
+
+        .form-group label,
+        .field label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select,
+        .field input,
+        .field select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button[type="submit"]:hover {
+            background: #0056b3;
+        }
+
+        /* ── Messaggi di errore (condivisi) ──────────────── */
+        .error-msg,
+        .msg-error {
+            color: #dc3545;
+            margin-top: 15px;
+            font-weight: bold;
+            display: none;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ═══════ TAB SWITCHER ═══════ -->
+    <div class="tabs">
+        <button class="tab-btn active" data-target="login-section">Accedi</button>
+        <button class="tab-btn" data-target="register-section">Registrati</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         LOGIN
+    ════════════════════════════════════════════ -->
+    <div id="login-section" class="tab-content active">
+        <h2>Accedi al sistema</h2>
+
+        <form id="loginForm">
+            <div class="field">
+                <label for="login-username">Username</label>
+                <input type="text" id="login-username" required>
+            </div>
+            <div class="field">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <div class="field">
+                <label for="login-role">Accedi come</label>
+                <select id="login-role" required>
+                    <option value="">-- seleziona un ruolo --</option>
+                    <option value="ADMINISTRATIVE">Amministratore</option>
+                    <option value="TECHNICAL">Responsabile</option>
+                    <option value="COLLABORATOR">Collaboratore</option>
+                </select>
+            </div>
+            <button type="submit">ACCEDI</button>
+            <p class="msg-error" id="login-error"></p>
+        </form>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         REGISTRAZIONE
+    ════════════════════════════════════════════ -->
+    <div id="register-section" class="tab-content">
+        <h2>Crea Account</h2>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="reg-firstName">Nome</label>
+                <input type="text" id="reg-firstName" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-lastName">Cognome</label>
+                <input type="text" id="reg-lastName" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-username">Username</label>
+                <input type="text" id="reg-username" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-password">Password</label>
+                <input type="password" id="reg-password" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-conferma">Conferma Password</label>
+                <input type="password" id="reg-conferma" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-role">Ruolo Principale</label>
+                <select id="reg-role" required>
+                    <option value="">-- Seleziona Ruolo --</option>
+                    <option value="TECHNICAL">Technical</option>
+                    <option value="COLLABORATOR">Collaborator</option>
+                    <option value="ADMINISTRATIVE">Administrative</option>
+                </select>
+            </div>
+            <button type="submit">Registrati</button>
+            <div id="register-error" class="error-msg"></div>
+        </form>
+    </div>
+
+</div>
+
+<script src="js/auth.js"></script>
+</body>
+</html>
