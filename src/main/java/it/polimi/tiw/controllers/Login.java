@@ -44,7 +44,7 @@ public class Login extends AbstractServlet {
 
         try {
             UserDAO userDAO = new UserDAO(connection);
-            User user = userDAO.findByUsername(username);
+            User user = userDAO.checkCredentials(username, password);
 
             if (user == null ) {
                 fail(request, response, "Invalid username or password.");
