@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Collaboratore</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 50px; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; color: #333; text-align: center; }
+        .field { margin-bottom: 15px; }
+        .field label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .field select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+
+        table.hc-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table.hc-table th, table.hc-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        table.hc-table th {
+            background: #f0f0f0;
+        }
+        td.editable {
+            background: #fff8e1;
+            cursor: text;
+        }
+        td.editable:focus {
+            outline: 2px solid #007bff;
+            background: #fff3c4;
+        }
+
+        .msg-error, .msg-success { margin-top: 15px; font-weight: bold; display: none; text-align: center; }
+        .msg-error { color: #dc3545; }
+        .msg-success { color: #28a745; }
+
+        #btn-hc-logout {
+            width: 100%; padding: 10px; background: #6c757d; color: white;
+            border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 20px;
+        }
+        #btn-hc-logout:hover { background: #545b62; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="home-collaborator-section">
+    <h2>Home Collaboratore</h2>
+    <p>Benvenuto, <span id="hc-fullname"></span></p>
+
+    <p class="msg-error" id="hc-error"></p>
+    <p class="msg-success" id="hc-success"></p>
+
+    <div class="field">
+        <label for="hc-project">Progetto</label>
+        <select id="hc-project">
+            <option value="">-- seleziona un progetto --</option>
+        </select>
+    </div>
+
+    <!-- QUI COMPARE LA TABELLA DEI TASK -->
+    <div id="hc-task-table"></div>
+
+    <button id="btn-hc-logout" type="button">Logout</button>
+</div>
+
+<script src="./js/home-collaborator.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        if (window.loadHomeCollaborator) {
+            window.loadHomeCollaborator();
+        }
+    });
+</script>
+</body>
+</html>

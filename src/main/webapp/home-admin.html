@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 50px; }
+        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; color: #333; text-align: center; }
+        h3 { color: #333; margin-top: 25px; }
+        .field { margin-bottom: 15px; }
+        .field label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .field input, .field select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+
+        .msg-success { margin-top: 15px; font-weight: bold; display: none; text-align: center; color: #28a745; }
+        .msg-error   { margin-top: 15px; font-weight: bold; display: none; text-align: center; color: #dc3545; }
+
+        button { padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 25px; }
+        button:hover { background: #545b62; }
+
+        .projects-list { margin-top: 25px; }
+        .project-card { background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; padding: 15px; margin-bottom: 15px; }
+        .project-card h4 { margin-top: 0; color: #0056b3; }
+        .project-card .meta { font-size: 13px; color: #777; margin-bottom: 10px; }
+        .wp-list { margin-left: 20px; margin-top: 10px; }
+        .wp-item { padding: 8px 0; color: #555; font-size: 13px; }
+        .wp-item strong { color: #333; }
+        .empty { color: #999; text-align: center; padding: 20px; font-style: italic; }
+
+        nav.tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid #ddd; }
+        nav.tabs button { background: none; border: none; padding: 10px 16px; font-size: 15px; font-weight: bold; color: #777; cursor: pointer; border-bottom: 3px solid transparent; margin-top: 0; }
+        nav.tabs button:hover { background: none; }
+        nav.tabs button.active { color: #007bff; border-bottom-color: #007bff; }
+
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* Draft builder */
+        .draft-wp { background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; padding: 15px; margin-bottom: 15px; }
+        .draft-wp-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .draft-wp-header input[type="text"] { flex: 1; font-weight: bold; color: #0056b3; border: 1px solid transparent; background: transparent; padding: 4px; border-radius: 4px; }
+        .draft-wp-header input[type="text"]:focus { border-color: #ccc; background: #fff; }
+        .draft-months { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #777; margin-bottom: 10px; }
+        .draft-months input[type="number"] { width: 55px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+        .draft-task { display: flex; align-items: center; gap: 8px; padding: 8px; background: #fff; border: 1px solid #e5e5e5; border-radius: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+        .draft-task input[type="text"] { border: 1px solid transparent; background: transparent; padding: 3px; border-radius: 4px; }
+        .draft-task input[type="text"]:focus { border-color: #ccc; background: #fafbfc; }
+        .draft-task .task-title { flex: 1 1 160px; font-weight: 600; color: #333; }
+        .draft-task .task-desc  { flex: 2 1 200px; color: #777; font-size: 12.5px; }
+        .draft-task input[type="number"] { width: 50px; padding: 3px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-size: 12px; }
+
+        .btn-add    { background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; padding: 4px 10px; margin-top: 0; }
+        .btn-add:hover { background: #1e7e34; }
+        .btn-remove { background: #dc3545; color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 12px; width: 22px; height: 22px; line-height: 1; margin-top: 0; flex-shrink: 0; }
+        .btn-remove:hover { background: #a71d2a; }
+
+        .btn-save-draft { background: #007bff; width: 100%; margin-top: 20px; }
+        .btn-save-draft:hover { background: #0056b3; }
+
+        /* ── Drag & drop (tab Gestione) ── */
+        .manage-wp-block { background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; padding: 12px 15px; margin-bottom: 12px; }
+        .manage-wp-block h5 { margin: 0 0 8px; color: #0056b3; font-size: 14px; }
+        .manage-wp-block .wp-meta { font-size: 11px; color: #999; margin-bottom: 8px; }
+
+        .task-drop-zone { min-height: 36px; border: 2px dashed transparent; border-radius: 4px; transition: border-color .15s, background .15s; padding: 2px; }
+        .task-drop-zone.drag-over { border-color: #007bff; background: #e8f0fe; }
+
+        .manage-task-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 10px; background: #fff;
+            border: 1px solid #e5e5e5; border-radius: 4px;
+            margin-bottom: 6px; cursor: grab; font-size: 13px;
+            user-select: none;
+        }
+        .manage-task-item:active { cursor: grabbing; }
+        .manage-task-item.dragging { opacity: .4; }
+        .manage-task-item .task-order { color: #aaa; font-size: 11px; min-width: 18px; }
+        .manage-task-item .task-name  { flex: 1; font-weight: 600; color: #333; }
+        .manage-task-item .task-months { color: #777; font-size: 11px; }
+
+        .drop-placeholder {
+            height: 32px; border: 2px dashed #007bff;
+            border-radius: 4px; background: #e8f0fe;
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="home-admin-section">
+    <h2>Home Admin</h2>
+    <p style="text-align:center;">Benvenuto, <span id="ha-fullname"></span></p>
+
+    <p class="msg-error"   id="ha-error"></p>
+    <p class="msg-success" id="ha-success"></p>
+
+    <nav class="tabs">
+        <button class="tab-btn active" data-view="manage">Gestione</button>
+        <button class="tab-btn" data-view="draft">Nuovo Progetto</button>
+        <button class="tab-btn" data-view="verify">Verifica Progetti</button>
+    </nav>
+
+    <!-- ===== GESTIONE ===== -->
+    <section class="view active" id="view-manage">
+    <div class="undo-redo-bar" style="margin-bottom: 15px; display:flex; gap:10px;">
+    <button id="btn-undo-dd" type="button">↶ Undo</button>
+    <button id="btn-redo-dd" type="button">↷ Redo</button>
+		</div>
+        <div class="projects-list" id="projects-container">
+            <p class="empty">Caricamento...</p>
+        </div>
+    </section>
+
+    <!-- ===== NUOVO PROGETTO ===== -->
+    <section class="view" id="view-draft">
+    <div class="undo-redo-bar" style="margin-bottom: 15px; display:flex; gap:10px;">
+    <button id="btn-undo" type="button">↶ Undo</button>
+    <button id="btn-redo" type="button">↷ Redo</button>
+	</div>
+    
+        <h3>Dati progetto</h3>
+        <div class="field">
+            <label for="draft-title">Titolo</label>
+            <input type="text" id="draft-title" placeholder="Titolo del progetto">
+        </div>
+        <div class="field">
+            <label for="draft-duration">Durata (mesi)</label>
+            <input type="number" id="draft-duration" min="1" value="6">
+        </div>
+        <div class="field">
+            <label for="draft-manager">Responsabile</label>
+            <select id="draft-manager">
+                <option value="">-- seleziona un responsabile --</option>
+            </select>
+        </div>
+
+        <h3>Work Package</h3>
+        <div id="draft-wps-container"></div>
+        <button class="btn-add" id="btn-add-wp" type="button">+ Aggiungi Work Package</button>
+        <button class="btn-save-draft" id="btn-save-draft" type="button">Salva progetto</button>
+    </section>
+
+    <!-- ===== VERIFICA PROGETTI ===== -->
+    <section class="view" id="view-verify">
+        <div class="field">
+            <label for="verify-project">Progetto</label>
+            <select id="verify-project">
+                <option value="">-- seleziona un progetto --</option>
+            </select>
+        </div>
+        <div id="verify-detail">
+            <p class="empty">Nessun progetto selezionato.</p>
+        </div>
+    </section>
+
+    <button id="btn-logout" type="button">Logout</button>
+</div>
+
+<script src="js/home-admin.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        if (window.loadHomeAdmin) window.loadHomeAdmin();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Responsabile</title>
+    <style>
+        :root {
+            --blue: #1a73e8;
+            --gray-bg: #f4f5f6;
+            --gray-card: #f7f8f9;
+            --gray-border: #e6e8eb;
+            --text-main: #1f2329;
+            --text-muted: #8a8f98;
+            --green: #1c6b32;
+            --green-bg: #e3f3e8;
+            --red: #c62828;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--gray-bg);
+            color: var(--text-main);
+            padding: 50px 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px 48px 48px;
+            border-radius: 12px;
+        }
+
+        h2 {
+            margin: 0 0 6px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin: 24px 0 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 15px;
+            margin: 0 0 28px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            border-bottom: 1px solid var(--gray-border);
+            margin-bottom: 32px;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0 2px 14px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+        .tab-btn:hover { color: var(--text-main); }
+        .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* Fields */
+        .field { margin-bottom: 18px; }
+        .field label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .field select, .field input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--gray-border);
+            border-radius: 8px;
+            font-size: 15px;
+            background: #fff;
+            color: var(--text-main);
+        }
+        .field select:focus, .field input:focus {
+            outline: none;
+            border-color: var(--blue);
+        }
+
+        /* Buttons */
+        .btn-primary, .btn-success, button[type="submit"] {
+            padding: 11px 22px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .btn-primary, button[type="submit"] { background: var(--blue); color: #fff; }
+        .btn-primary:hover, button[type="submit"]:hover { background: #1558b0; }
+        .btn-primary:disabled { background: #b8d2f5; cursor: not-allowed; }
+
+        .btn-success { background: #1f9d4d; color: #fff; }
+        .btn-success:hover { background: #18803e; }
+
+        #btn-logout {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--gray-border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 32px;
+        }
+        #btn-logout:hover { background: var(--gray-card); color: var(--text-main); }
+
+        /* Messages */
+        .msg-error, .msg-success, .msg-error-inline {
+            margin: 0 0 16px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            display: none;
+            text-align: left;
+        }
+        .msg-error, .msg-error-inline { color: var(--red); background: #fdecea; }
+        .msg-success { color: var(--green); background: var(--green-bg); }
+
+        /* Cards (progetto / wp / task) */
+        .card {
+            background: var(--gray-card);
+            border: 1px solid var(--gray-border);
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+        }
+        .card-title { font-size: 16px; font-weight: 700; color: var(--blue); margin: 0 0 2px; }
+        .card-meta { font-size: 13px; color: var(--text-muted); margin: 0 0 12px; }
+
+        .row-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            border: 1px solid var(--gray-border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .row-item .row-id { color: var(--text-muted); margin-right: 8px; }
+        .row-item .row-label { font-weight: 600; }
+        .row-item .row-extra { color: var(--text-muted); font-size: 13px; }
+
+        /* Hours table */
+        table.hours { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 13px; }
+        table.hours th, table.hours td {
+            border: 1px solid var(--gray-border);
+            padding: 8px 10px;
+            text-align: center;
+        }
+        table.hours th { background: var(--gray-card); color: var(--text-muted); font-weight: 600; }
+        table.hours td.inactive { background: #fafafa; color: #c4c8cd; }
+        table.hours tr.wp-row td { background: #eaf2fe; font-weight: 700; color: var(--blue); }
+        table.hours input {
+            width: 55px;
+            padding: 5px;
+            border: 1px solid var(--gray-border);
+            border-radius: 6px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        /* Collaborator chips */
+        .collab-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+        .chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border-radius: 16px;
+            background: var(--gray-card);
+            border: 1px solid var(--gray-border);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        .chip.active { background: #eaf2fe; border-color: var(--blue); color: var(--blue); }
+        .chip input { display: none; }
+
+        /* Badges */
+        .badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; vertical-align: middle; }
+        .badge.created { background: #fff3cd; color: #92730a; }
+        .badge.assigned { background: var(--green-bg); color: var(--green); }
+        .badge.concluded { background: #e2e3e5; color: #555; }
+
+        .row-actions { margin-top: 18px; display: flex; gap: 10px; justify-content: flex-end; }
+        .empty { color: var(--text-muted); text-align: center; padding: 24px 0; font-size: 14px; }
+        .breadcrumb { color: var(--text-muted); font-size: 13px; margin-bottom: 12px; }
+        .breadcrumb b { color: var(--blue); }
+    </style>
+</head>
+<body>
+
+<div class="container" id="home-manager-section">
+    <h2>Home Responsabile</h2>
+    <p class="subtitle">Benvenuto, <span id="hm-fullname"></span></p>
+
+    <div class="tabs">
+        <button type="button" class="tab-btn active" data-view="home">Home</button>
+        <button type="button" class="tab-btn" data-view="monitor">Monitor Progetti</button>
+        <button type="button" class="tab-btn" data-view="collab">Monitor Collaboratori</button>
+    </div>
+
+    <p class="msg-error" id="hm-error"></p>
+    <p class="msg-success" id="hm-success"></p>
+
+    <section class="view active" id="view-home">
+        <div class="field">
+            <label for="home-project">Progetto</label>
+            <select id="home-project">
+                <option value="">-- seleziona un progetto --</option>
+            </select>
+        </div>
+
+        <div class="field" id="home-wp-field" style="display:none">
+            <label for="home-wp">Work Package</label>
+            <select id="home-wp">
+                <option value="">-- seleziona un WP --</option>
+            </select>
+        </div>
+
+        <div class="field" id="home-task-field" style="display:none">
+            <label for="home-task">Task</label>
+            <select id="home-task">
+                <option value="">-- seleziona un task --</option>
+            </select>
+        </div>
+
+        <div id="home-assignment-panel">
+            <p class="empty">Seleziona un task per definire ore previste e collaboratori.</p>
+        </div>
+    </section>
+
+    <section class="view" id="view-monitor">
+        <div class="field">
+            <label for="monitor-project">Progetto</label>
+            <select id="monitor-project">
+                <option value="">-- seleziona un progetto --</option>
+            </select>
+        </div>
+
+        <div id="monitor-detail">
+            <p class="empty">Nessun progetto selezionato.</p>
+        </div>
+    </section>
+
+    <section class="view" id="view-collab">
+        <div class="field">
+            <label for="collab-select">Collaboratore</label>
+            <select id="collab-select">
+                <option value="">-- seleziona un collaboratore --</option>
+            </select>
+        </div>
+
+        <div id="collab-detail">
+            <p class="empty">Nessun collaboratore selezionato.</p>
+        </div>
+    </section>
+
+    <button id="btn-logout" type="button">Logout</button>
+</div>
+
+<script src="js/home-manager.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        if (window.loadHomeManager) {
+            window.loadHomeManager();
+        }
+    });
+</script>
+</body>
+</html>
